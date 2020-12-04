@@ -2,6 +2,7 @@ import pandas as pd
 import datetime as dt
 import os
 import platform as pt
+import numpy as np
 
 #CRCA
 #ARBPL 工作中心
@@ -37,15 +38,51 @@ import platform as pt
 #WKBEGIN 工作开始时间
 #WKEND   工作结束时间
 
-def check_plaf_file(vPLAF):
-    #检查打开的plaf文件是否为空，为空则抛出异常
-    #检查打开的plaf文件是否包含应有列，缺少列则抛出异常
-    pass
+def verify_all(plaf,crca,mara,plpo):
+    column_crca = ["ARBPL", "KAPAZ"]  # 工作产能中心表头
+    column_mara = ["MATNR", "MATKL"]  # 物料主数据表头
+    column_plaf = ["PLNUM", "MATNR", "PLWRK", "GSMNG", "PEDTR"]  # 计划订单清单表头
+    column_plpo = ["MATNR", "ARBPL", "TIME"]  # 物料工艺路线表头
+    result_crca = verify_crca(crca,column_crca)
+    result_mara = verify_mara(mara,column_mara)
+    result_plaf = verify_plaf(plaf,column_plaf)
+    result_plpo = verify_plpo(plpo,column_plpo)
 
-def check_mara_file(vMARA):
-    #检查打开的mara文件是否为空，为空则抛出异常
-    #检查打开的mara文件是否包含应有列，缺少列则抛出异常
-    pass
+    if result_crca == False or result_mara == False or result_plaf == False or result_plpo == False:
+        print("Error : One or more files is lack of column . Please check your CSV files.")
+        exit(1)
+
+
+def verify_crca(df,column_crca):
+    right = False
+    actualcol = df.columns.values
+    if np.array_equal(actualcol, column_crca):
+        right = True
+    return right
+
+# 校验物料主数据格式
+def verify_mara(df,column_mara):
+    right = False
+    actualcol = df.columns.values
+    if np.array_equal(actualcol, column_mara):
+        right = True
+    return right
+
+# 校验计划订单清单格式
+def verify_plaf(df,column_plaf):
+    right = False
+    actualcol = df.columns.values
+    if np.array_equal(actualcol, column_plaf):
+        right = True
+    return right
+
+# 校验物料工艺路线格式
+def verify_plpo(df,column_plpo):
+    right = False
+    actualcol = df.columns.values
+    if np.array_equal(actualcol, column_plpo):
+        right = True
+    return right
 
 def decoOUTPUT(func):
     def starline(*args,**kwargs):
@@ -276,6 +313,8 @@ if __name__ == '__main__':
     while open_flag == 0:
         open_flag,plaf,plpo,mara,crca=openFileInput()
 
+    #校验文件是否包含应有的列
+    verify_all(plaf, crca, mara, plpo)
     #plaf = pd.read_csv('/Users/treefay/Documents/mem/python/workarragement/PLAF.csv')
     #mara= pd.read_csv('/Users/treefay/Documents/mem/python/workarragement/MARA.csv')
     #plpo = pd.read_csv('/Users/treefay/Documents/mem/python/workarragement/PLPO.csv')
